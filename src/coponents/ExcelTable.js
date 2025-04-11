@@ -32,7 +32,7 @@ function ExcelProcessor() {
     }else if(company === 'City Mall'){
       columns = [12,27,26]
     }else if(company === 'JioMart'){
-      columns = [28,32,31]
+      columns = [28,35,34]
     }else if(company === 'Glowroad'){
       columns = [18,20,21]
     }
