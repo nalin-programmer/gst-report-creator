@@ -82,11 +82,9 @@ function ExcelProcessor() {
                       </button>
                     </div>
 
-                    {row.visible && (
-                        <div style={{ marginTop: "10px" }}>
+                      <div style={{ marginTop: "10px", display: row.visible ? "block" : "none" }}>
                           <TableRow />
-                        </div>
-                    )}
+                      </div>
                   </div>
               ))}
 
