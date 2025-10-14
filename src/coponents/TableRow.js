@@ -6,7 +6,7 @@ const formatStateName = (state) => {
     return state.toUpperCase() === "JAMMU & KASHMIR" ? "JAMMU AND KASHMIR" : state.toUpperCase();
 };
 
-function TableRow() {
+function TableRow({details, setDetails, position}) {
     const [outputCSV, setOutputCSV] = useState('');
     const [company, setCompany] = useState('Default');
     const [totalAmount, setTotalAmount] = useState(0);
@@ -26,7 +26,7 @@ function TableRow() {
         }else if (company === 'Reverse') {
             columns = [12, 7, 8];
         }else if (company === 'Flipkart'){
-            columns = [48,31,33,35,24]
+            columns = [50,31,35,33,24]
         }else if (company === 'Cashback'){
             columns = [24,11,13,15,8]
         }else if(company === 'City Mall'){
@@ -39,9 +39,7 @@ function TableRow() {
 
         const aggregatedData = {};
         data.slice(1).forEach(row => {
-            console.log(isReverse)
             let state =row[columns[0]], gst=parseInt(row[columns[1]]), amount=row[columns[2]];
-            console.log(row)
             if(company === 'Flipkart'||company === 'Cashback' ){
                 gst=parseInt(row[columns[1]])+parseInt(row[columns[2]])+parseInt(row[columns[3]])
                 amount=amount=parseFloat(row[columns[4]])
@@ -65,15 +63,24 @@ function TableRow() {
 
         setTotalAmount(total);
         let csvContent = "State,GST,Total Amount\n";
+        let globalContent = [];
         for (const state in aggregatedData) {
             for (const gst in aggregatedData[state]) {
                 if (state === "state") continue;
                 const totalAmount = aggregatedData[state][gst];
                 csvContent += `${formatStateName(state.toUpperCase())},${gst},${totalAmount}\n`;
                 displayTable.push([state.toUpperCase(),gst,totalAmount]);
+                globalContent.push({
+                    state: formatStateName(state.toUpperCase()),
+                    gst: gst,
+                    totalAmount: totalAmount
+                });
             }
         }
         setDisplay(displayTable);
+        let newDetails = details;
+        newDetails[position] = globalContent;
+        setDetails(newDetails);
         return csvContent;
     };
 
@@ -89,7 +96,6 @@ function TableRow() {
             const sheet = workbook.Sheets[sheetName];
             const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
             const csvContent = processExcelData(tableData);
-            console.log("Table Data==>",tableData)
             setOutputCSV(csvContent);
         };
 
