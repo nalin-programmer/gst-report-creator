@@ -17,9 +17,18 @@ const MONTH_OPTIONS = [
     'December'
 ];
 
+const MONTH_ORDER = MONTH_OPTIONS.reduce((acc, month, index) => {
+    acc[month] = index;
+    return acc;
+}, {});
+
 function PivotTablePage() {
     const [rows, setRows] = useState([{ id: Date.now(), month: '', data: [] }]);
     const [allRowsData, setAllRowsData] = useState([]);
+    const toNumberOrZero = (value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    };
 
     const handleAddRow = () => {
         setRows((prev) => [...prev, { id: Date.now() + prev.length, month: '', data: [] }]);
@@ -47,7 +56,7 @@ function PivotTablePage() {
                 .map((row) => ({
                     state: row[0],
                     gst: row[1],
-                    monthFromFile: row[2]
+                    price: row[2]
                 }));
 
             setRows((prev) =>
@@ -60,18 +69,40 @@ function PivotTablePage() {
 
     useEffect(() => {
         const combined = rows.flatMap((row) =>
-            row.data.map((entry) => [
-                entry.state,
-                entry.gst,
-                entry.monthFromFile,
-                row.month
-            ])
+            row.data
+                .filter((entry) => row.month)
+                .map((entry) => ({
+                    state: String(entry.state).trim(),
+                    month: row.month,
+                    gst: toNumberOrZero(entry.gst),
+                    price: toNumberOrZero(entry.price)
+                }))
         );
         setAllRowsData(combined);
     }, [rows]);
 
-    const handleDisplay = () => {
-        console.log('Combined pivot data:', allRowsData);
+    const handleDownload = () => {
+        const sortedRows = [...allRowsData].sort((a, b) => {
+            const stateCompare = a.state.localeCompare(b.state);
+            if (stateCompare !== 0) return stateCompare;
+
+            const monthCompare = (MONTH_ORDER[a.month] ?? 999) - (MONTH_ORDER[b.month] ?? 999);
+            if (monthCompare !== 0) return monthCompare;
+
+            return a.gst - b.gst;
+        });
+
+        const exportRows = sortedRows.map((entry) => ({
+            State: entry.state,
+            Month: entry.month,
+            'GST %': entry.gst,
+            Price: entry.price
+        }));
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Pivot Table');
+        XLSX.writeFile(workbook, 'pivot_table_report.xlsx');
     };
 
     return (
@@ -130,7 +161,7 @@ function PivotTablePage() {
             </button>
 
             <button
-                onClick={handleDisplay}
+                onClick={handleDownload}
                 style={{
                     background: '#007bff',
                     color: '#fff',
@@ -140,7 +171,7 @@ function PivotTablePage() {
                     cursor: 'pointer'
                 }}
             >
-                Display
+                Download Excel
             </button>
         </div>
     );
