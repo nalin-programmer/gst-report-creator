@@ -34,6 +34,11 @@ function PivotTablePage() {
         if (denominator === 0) return 0;
         return Math.round(((price * 100) / denominator) * 100) / 100;
     };
+    const calculateTaxAmount = (total, gst, divisor = 1) => {
+        const denominator = divisor * (100 + gst);
+        if (denominator === 0) return 0;
+        return Math.round(((total * gst) / denominator) * 100) / 100;
+    };
 
     const handleAddRow = () => {
         setRows((prev) => [...prev, { id: Date.now() + prev.length, month: '', data: [] }]);
@@ -97,13 +102,19 @@ function PivotTablePage() {
             return a.gst - b.gst;
         });
 
-        const exportRows = sortedRows.map((entry) => ({
-            State: entry.state,
-            Month: entry.month,
-            'GST %': entry.gst,
-            Total: entry.price,
-            'Taxable Value': calculateTaxableValue(entry.price, entry.gst)
-        }));
+        const exportRows = sortedRows.map((entry) => {
+            const isMadhyaPradesh = entry.state.toUpperCase() === 'MADHYA PRADESH';
+            return {
+                State: entry.state,
+                Month: entry.month,
+                'GST': entry.gst,
+                Total: entry.price,
+                'Taxable Value': calculateTaxableValue(entry.price, entry.gst),
+                IGST: isMadhyaPradesh ? '' : calculateTaxAmount(entry.price, entry.gst),
+                CGST: isMadhyaPradesh ? calculateTaxAmount(entry.price, entry.gst, 2) : '',
+                SGST: isMadhyaPradesh ? calculateTaxAmount(entry.price, entry.gst, 2) : ''
+            };
+        });
 
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(exportRows);
