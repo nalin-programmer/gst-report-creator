@@ -12,7 +12,6 @@ function TableRow({details, setDetails, position}) {
     const [totalAmount, setTotalAmount] = useState(0);
     const [display, setDisplay] = useState([]);
     const [fileName, setFileName] = useState('');
-    const [isReverse, setReverse]= useState(1);
 
     const processExcelData = (data) => {
         let columns=[1,2,3];
@@ -26,7 +25,7 @@ function TableRow({details, setDetails, position}) {
         }else if (company === 'Reverse') {
             columns = [12, 7, 8];
         }else if (company === 'Flipkart'){
-            columns = [50,31,35,33,24]
+            columns = [49,30,34,32,23]
         }else if (company === 'Cashback'){
             columns = [24,11,13,15,8]
         }else if(company === 'City Mall'){
