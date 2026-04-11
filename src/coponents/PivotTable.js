@@ -29,6 +29,11 @@ function PivotTablePage() {
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : 0;
     };
+    const calculateTaxableValue = (price, gst) => {
+        const denominator = 100 + gst;
+        if (denominator === 0) return 0;
+        return Math.round(((price * 100) / denominator) * 100) / 100;
+    };
 
     const handleAddRow = () => {
         setRows((prev) => [...prev, { id: Date.now() + prev.length, month: '', data: [] }]);
@@ -96,7 +101,8 @@ function PivotTablePage() {
             State: entry.state,
             Month: entry.month,
             'GST %': entry.gst,
-            Price: entry.price
+            Total: entry.price,
+            'Taxable Value': calculateTaxableValue(entry.price, entry.gst)
         }));
 
         const workbook = XLSX.utils.book_new();
