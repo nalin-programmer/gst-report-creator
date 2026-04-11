@@ -30,7 +30,7 @@ function TableRow({details, setDetails, position}) {
         }else if (company === 'Cashback'){
             columns = [24,11,13,15,8]
         }else if(company === 'City Mall'){
-            columns = [12,27,26]
+            columns = [12,27,25]
         }else if(company === 'JioMart'){
             columns = [27,36,35]
         }else if(company === 'Glowroad'){
