@@ -25,7 +25,7 @@ function TableRow({details, setDetails, position}) {
         }else if (company === 'Reverse') {
             columns = [12, 7, 8];
         }else if (company === 'Flipkart'){
-            columns = [49,30,34,32,23]
+            columns = [48,31,35,33,24]
         }else if (company === 'Cashback'){
             columns = [24,11,13,15,8]
         }else if(company === 'City Mall'){
@@ -34,6 +34,8 @@ function TableRow({details, setDetails, position}) {
             columns = [27,36,35]
         }else if(company === 'Glowroad'){
             columns = [18,20,21]
+        }else if(company === 'Snapdeal'){
+            columns = [1,6,5]
         }
 
         const aggregatedData = {};
@@ -42,6 +44,9 @@ function TableRow({details, setDetails, position}) {
             if(company === 'Flipkart'||company === 'Cashback' ){
                 gst=parseInt(row[columns[1]])+parseInt(row[columns[2]])+parseInt(row[columns[3]])
                 amount=amount=parseFloat(row[columns[4]])
+            }
+            if(company === 'Snapdeal'){
+                state = state.substring(3);
             }
             if (!aggregatedData[state]) {
                 aggregatedData[state] = {};
@@ -91,7 +96,7 @@ function TableRow({details, setDetails, position}) {
         reader.onload = (event) => {
             const data = new Uint8Array(event.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName =(company==="Flipkart")?workbook.SheetNames[1]: (company==="Cashback")?workbook.SheetNames[2]:workbook.SheetNames[0];
+            const sheetName =(company==="Flipkart")?workbook.SheetNames[1]: (company==="Cashback")?workbook.SheetNames[2]:(company==="Snapdeal")?workbook.SheetNames[3]:workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
             const csvContent = processExcelData(tableData);
@@ -118,6 +123,7 @@ function TableRow({details, setDetails, position}) {
                     <option value="City Mall">City Mall</option>
                     <option value="JioMart">JioMart</option>
                     <option value="Glowroad">Glowroad</option>
+                    <option value="Snapdeal">Snapdeal</option>
                 </select>
             </div>
             <div className="form-group">
